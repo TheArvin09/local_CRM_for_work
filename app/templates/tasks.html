@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Задачи</title>
+</head>
+<body >
+    <h1 >Список задач</h1>
+
+        <table  >
+            <tr><!--Оглавление таблицы задач-->
+                <th></th>
+                <th>ID</th>
+                <th>Название</th>
+                <th>
+                    Приоритет
+
+                    <form method="get">
+
+                        <select name="priority" onchange="this.form.submit()">
+                            <option value="" {% if selected_priority =="" %}selected{% endif %}>Все</option>
+                            <option value="0" {% if selected_priority =="0" %}selected{% endif %}>Без приоритета</option>
+                            <option value="4" {% if selected_priority =="4" %}selected{% endif %}>Отложенная</option>
+                            <option value="3" {% if selected_priority =="3" %}selected{% endif %}>Низкий</option>
+                            <option value="2" {% if selected_priority =="2" %}selected{% endif %}>Средний</option>
+                            <option value="1" {% if selected_priority =="1" %}selected{% endif %}>Высокий</option>
+                        </select>
+
+                    </form>
+
+                </th>
+                <th>
+                    Статус
+
+                    <form method="get">
+
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="" {% if selected_status =="" %}selected{% endif %}>Все</option>
+                            <option value="True" {% if selected_status =="True" %}selected{% endif %}>Выполнены</option>
+                            <option value="False" {% if selected_status =="False" %}selected{% endif %}>Не выполнены</option>
+                        </select>
+
+                    </form>
+
+                </th>
+                <th></th>
+                <th>Время создания</th>
+                <th>Последняя заметка</th>
+                <th></th>
+                    </tr>
+                        {% if tasks_with_notes %}
+
+                            {% for item in tasks_with_notes | reverse %} <!--Цикл вывода задач в таблице-->
+                                <tr id="task-{{ item.task.id }}" class="{% if item.task.status %}done{% endif %}">
+                                    <td>{{ loop.index }}</td>
+                                <td>{{ item.task.id }}</td>
+                                    <td><a href='/tasks/{{ item.task.id }}'>{{ item.task.name }}</a></td>
+                                <td>{{ item.task.priority | priority_label }}</td>
+                                <td>{{ item.task.status | status_label }}</td>
+                                <td>
+                                    <form action="/tasks/{{ item.task.id }}/toggle_status" method="post">
+                                        <input type="hidden" name="redirect_to" value="/#task-{{ item.task.id }}">
+                                        <input type="checkbox" onchange="this.form.submit()" {% if item.task.status %}checked{% endif %}>
+                                    </form>
+                                </td>
+                                <td>{{ item.task.create_time | format_local_timezone }}</td>
+                                <td>
+                                    {% if item.last_note %}
+                                        {{ item.last_note.text }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="/tasks/{{ item.task.id }}/delete" method="post">
+                                        <button type="submit">Удалить</button>
+                                    </form>
+                                </td>
+                                </tr>
+                        {% endfor %}
+
+                        {% else %}
+                            <tr><td>Задач нет!</td></tr>
+                        {% endif %}
+
+        </table>
+
+    <!--Форма создания задачи-->
+    <h3 style="text-align: center; position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 25px 0; margin: 0;">
+        Создать задачу:
+
+        <form action="/tasks/create" method="post" >
+            <label >Название: <input type="text" name="name" required></label>
+            <label>Приоритет:
+                <select name="priority">
+                    <option value="0">Без приоритета</option>
+                    <option value="4">Отложенная</option>
+                    <option value="3">Низкий</option>
+                    <option value="2">Средний</option>
+                    <option value="1">Высокий</option>
+                </select>
+            </label>
+            <button type="submit">Создать задачу</button>
+        </form>
+    </h3>
+
+</body>
+</html>
