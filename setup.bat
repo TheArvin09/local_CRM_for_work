@@ -1,31 +1,30 @@
 @echo off
-chcp 65001 >nul
 echo ===================================
-echo   Настройка CRM - подождите...
+echo   CRM Setup - please wait...
 echo ===================================
 echo.
 
-REM Шаг 1: создание виртуального окружения
-echo [1/5] Создаю виртуальное окружение...
+REM Step 1: create virtual environment
+echo [1/5] Creating virtual environment...
 python -m venv venv
 if errorlevel 1 (
-    echo ОШИБКА: не удалось создать venv. Проверьте, что Python установлен и добавлен в PATH.
+    echo ERROR: could not create venv. Make sure Python is installed and added to PATH.
     pause
     exit /b
 )
 
-REM Шаг 2: активация venv и установка зависимостей
-echo [2/5] Устанавливаю зависимости...
+REM Step 2: activate venv and install dependencies
+echo [2/5] Installing dependencies...
 call venv\Scripts\activate.bat
 pip install -r requirements.txt
 if errorlevel 1 (
-    echo ОШИБКА: не удалось установить зависимости.
+    echo ERROR: could not install dependencies.
     pause
     exit /b
 )
 
-REM Шаг 3: создание .env файла
-echo [3/5] Создаю файл настроек...
+REM Step 3: create .env file
+echo [3/5] Creating settings file...
 (
 echo DB_HOST=localhost
 echo DB_PORT=5432
@@ -34,10 +33,10 @@ echo DB_PASS=admin123
 echo DB_NAME=crm_db
 ) > .env
 
-REM Шаг 4: создание пользователя и базы данных в Postgres
-echo [4/5] Настраиваю базу данных...
-echo Сейчас потребуется ввести пароль администратора Postgres
-echo (тот, что вы задали при установке PostgreSQL)
+REM Step 4: create Postgres user and database
+echo [4/5] Setting up the database...
+echo You will be asked for the Postgres admin password now
+echo ^(the one you set during PostgreSQL installation^)
 echo.
 
 set PSQL=
@@ -46,29 +45,29 @@ for %%v in (18 17 16 15 14 13) do (
 )
 
 if "%PSQL%"=="" (
-    echo Не удалось найти psql.exe автоматически.
-    echo Найдите файл psql.exe в папке PostgreSQL ^(обычно в C:\Program Files\PostgreSQL\ВЕРСИЯ\bin^)
-    echo и сообщите путь к нему для настройки.
+    echo Could not find psql.exe automatically.
+    echo Look for psql.exe inside C:\Program Files\PostgreSQL\VERSION\bin
+    echo and let the project owner know the path so the script can be fixed.
     pause
     exit /b
 )
 
-echo Найден psql: %PSQL%
+echo Found psql: %PSQL%
 "%PSQL%" -U postgres -c "CREATE USER admin WITH PASSWORD 'admin123';"
 "%PSQL%" -U postgres -c "CREATE DATABASE crm_db OWNER admin;"
 
-REM Шаг 5: применение миграций
-echo [5/5] Создаю таблицы в базе данных...
+REM Step 5: run migrations
+echo [5/5] Creating database tables...
 alembic upgrade head
 if errorlevel 1 (
-    echo ОШИБКА: не удалось применить миграции.
+    echo ERROR: could not apply migrations.
     pause
     exit /b
 )
 
 echo.
 echo ===================================
-echo   Готово! Настройка завершена.
-echo   Теперь запустите start.bat
+echo   Done! Setup complete.
+echo   Now run start.bat
 echo ===================================
 pause

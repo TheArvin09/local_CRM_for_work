@@ -1,11 +1,10 @@
 @echo off
-chcp 65001 >nul
-echo Запускаю CRM...
+echo Starting CRM...
 echo.
-echo Когда увидите "Application startup complete", откройте браузер
-echo и перейдите на адрес: http://127.0.0.1:8000
+echo Once you see "Application startup complete", open your browser
+echo and go to: http://127.0.0.1:8000
 echo.
-echo Чтобы остановить сервер - закройте это окно или нажмите Ctrl+C
+echo To stop the server - close this window or press Ctrl+C
 echo.
 
 call venv\Scripts\activate.bat
