@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo Запускаю CRM...
 echo.
 echo Когда увидите "Application startup complete", откройте браузер
